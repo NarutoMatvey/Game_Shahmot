@@ -5,8 +5,6 @@ import karts  # Библиотека с картами
 import random  # Библиотека псевда рандома
 
 winer = ''
-goriz = 0
-vertical = 0
 
 # Можно будет выделить в блок
 sock = socket.socket()  # Создание сокета
@@ -33,10 +31,12 @@ def TrevalKarts(karta, conn):
                 goriz = j
                 vertical = i
             conn.send(karta[i][j].encode('utf-8'))
+    return goriz, vertical
 
 
-TrevalKarts(karta, conn)
+goriz, vertical = TrevalKarts(karta, conn)
 
+print(goriz,vertical)
 
 # Проверка возможности
 def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
@@ -103,3 +103,7 @@ while 1:
         break
     else:
         conn.send((str(vertical) + ',' + str(goriz)).encode('utf-8'))
+
+
+conn.close()
+sock.close()
