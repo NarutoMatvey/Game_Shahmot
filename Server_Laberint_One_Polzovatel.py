@@ -33,7 +33,6 @@ def TrevalKarts(karta, conn):
                 goriz = j
                 vertical = i
             conn.send(karta[i][j].encode('utf-8'))
-    conn.send(b'k')
 
 
 TrevalKarts(karta, conn)
