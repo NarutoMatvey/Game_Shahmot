@@ -36,39 +36,64 @@ def TrevalKarts(karta, conn):
 
 goriz, vertical = TrevalKarts(karta, conn)
 
-print(goriz,vertical)
+print(vertical, goriz)
 
 # Проверка возможности
 def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
+    print('#0', v, g, shag1, shag2)
     light = len(karta)
+    print('#1', light)
     go = 1
     while 1:
+        print('#2', v + shag1, g + shag2 )
         if 0 <= v + shag1 < light and 0 <= g + shag2 < light:
             if karta[v + shag1][g + shag2] == '.':
                 if shag1 == 0:
                     shag2 = light
                 else:
                     shag1 = light
+
+                print('#3', shag1, shag2)
             else:
                 temp1 = v + shag1
                 temp2 = g + shag2
+                print('#4', temp1, temp2)
                 if shag2 < 0 or shag1 < 0:
                     go = -1
+                print('#5', go)
+                for i in range(v, temp1): #Неправильные циклы
+                    print('#', i, karta[i][g])
+                    if karta[i][g] == '.':
+                        shag1 = light
+                        break
 
-                while v != temp1:
-                    karta[v][g] = '+'
-                    v += go
+                for i in range(g, temp2):
+                    print('#', i, karta[v][i])
+                    if karta[v][i] == '.':
+                        shag2 = light
+                        break
 
-                while g != temp2:
-                    karta[v][g] = '+'
-                    g += go
+                if shag1 != light and shag2 != light:
+                    while v != temp1:
+                        print(karta[v][g])
+                        karta[v][g] = '+'
+                        print(karta[v][g])
+                        v += go
 
-                if karta[v][g] == 'e':
-                    karta[v][g] = 'I'
-                    return 'Win'
-                else:
-                    karta[v][g] = 'I'
-                    return ''
+                    while g != temp2:
+                        print(karta[v][g])
+                        karta[v][g] = '+'
+                        print(karta[v][g])
+                        g += go
+
+                    if karta[v][g] == 'e':
+                        karta[v][g] = 'I'
+                        return 'Win'
+                    else:
+                        print(karta[v][g])
+                        karta[v][g] = 'I'
+                        print(karta[v][g])
+                        return (str(v) + ',' + str(g)).encode('utf-8')
 
         else:
             # Если смещение на такое число несуществует
@@ -78,32 +103,43 @@ def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
                     shag2 = -shag2
                 else:
                     shag2 = random.randint(1, light - 1)
+                print('#9', shag2)
             elif shag1 < 0:
                 shag1 = random.randint(1, light - 1)
                 shag1 = -shag1
+                print('#10', shag1)
             else:
                 shag1 = random.randint(1, light - 1)
+                print('#11', shag1)
 
 
 # Игра началась
 while 1:
     naprawlenie = conn.recv(1)
     shag = random.randint(1, len(karta) - 1)
+    print("Новый этап \n")
     if naprawlenie == b'r':
         winer = proverka_na_cctenu(karta, vertical, goriz, shag2=shag)
     elif naprawlenie == b'l':
         winer = proverka_na_cctenu(karta, vertical, goriz, shag2=-shag)
     elif naprawlenie == b'd':
-        winer = proverka_na_cctenu(karta, vertical, goriz, shag1=-shag)
-    elif naprawlenie == b't':
         winer = proverka_na_cctenu(karta, vertical, goriz, shag1=shag)
+    elif naprawlenie == b't':
+        winer = proverka_na_cctenu(karta, vertical, goriz, shag1=-shag)
 
+    print('# ', winer)
     if winer == "Win":
         conn.send(b'Win')
         break
     else:
-        conn.send((str(vertical) + ',' + str(goriz)).encode('utf-8'))
+        conn.send(winer)
+        winer = str(winer)
+        winer = winer[2:len(winer)-1]
+        winer = winer.split(',')
+        vertical = int(winer[0])
+        goriz = int(winer[1])
+        winer = ''
 
-
+    print(karta)
 conn.close()
 sock.close()
