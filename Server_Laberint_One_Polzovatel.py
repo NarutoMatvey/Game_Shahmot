@@ -49,9 +49,15 @@ def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
         if 0 <= v + shag1 < light and 0 <= g + shag2 < light:
             if karta[v + shag1][g + shag2] == '.':
                 if shag1 == 0:
-                    shag2 = light
+                    if shag2 < 0:
+                        shag2 = -light
+                    else:
+                        shag2 = light
                 else:
-                    shag1 = light
+                    if shag1 < 0:
+                        shag1 = -light
+                    else:
+                        shag1 = light
 
                 print('#3', shag1, shag2)
             else:
@@ -61,19 +67,25 @@ def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
                 if shag2 < 0 or shag1 < 0:
                     go = -1
                 print('#5', go)
-                for i in range(v, temp1): #Неправильные циклы
+                for i in range(v, temp1, go): #Неправильные циклы
                     print('#', i, karta[i][g])
                     if karta[i][g] == '.':
-                        shag1 = light
+                        if shag1 < 0:
+                            shag1 = -light
+                        else:
+                            shag1 = light
                         break
 
-                for i in range(g, temp2):
+                for i in range(g, temp2, go):
                     print('#', i, karta[v][i])
                     if karta[v][i] == '.':
-                        shag2 = light
+                        if shag2 < 0:
+                            shag2 = -light
+                        else:
+                            shag2 = light
                         break
 
-                if shag1 != light and shag2 != light:
+                if shag1 != light and shag2 != light and shag1 != -light and shag2 != -light:
                     while v != temp1:
                         print(karta[v][g])
                         karta[v][g] = '+'
