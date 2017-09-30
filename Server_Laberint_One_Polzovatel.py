@@ -118,12 +118,13 @@ sock.listen(1)  # Создаю очередь пользователей
 
 conn, adr = sock.accept()  # Ожидаю подключения
 
-karta_mass = karts.Karts.raznoobrazie()
+karta_mass = [karts.Karts.raznoobrazie[2]]
 
 
 
 # Игра началась
 for karta in karta_mass:
+    conn.send(b'N')
 
     goriz, vertical = TrevalKarts(karta, conn)
 
@@ -139,7 +140,7 @@ for karta in karta_mass:
             winer = proverka_na_cctenu(karta, vertical, goriz, shag2=-shag)
         elif naprawlenie == b'd' and vertical + 1 < len(karta) and karta[vertical + 1][goriz] != '.':
             winer = proverka_na_cctenu(karta, vertical, goriz, shag1=shag)
-        elif naprawlenie == b't' and vertical - 1 > 0 and karta[vertical - 1][goriz] != '.':
+        elif naprawlenie == b't' and vertical - 1 >= 0 and karta[vertical - 1][goriz] != '.':
             winer = proverka_na_cctenu(karta, vertical, goriz, shag1=-shag)
         else:
             conn.send((str(vertical) + ',' + str(goriz)).encode('utf-8'))
@@ -158,5 +159,6 @@ for karta in karta_mass:
             goriz = int(winer[1])
             winer = ''
 
+conn.send(b'E')
 conn.close()
 sock.close()

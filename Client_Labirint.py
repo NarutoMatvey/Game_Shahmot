@@ -6,6 +6,10 @@ conn = socket.socket()
 conn.connect(("127.0.0.1", 7000))
 
 while 1:
+    Next_End = conn.recv(1)
+    if Next_End == b'E':
+        print('The End!\nYou Win!')
+        break
     # Размер массива
     temp_dan = str(conn.recv(5))
     temp_dan = temp_dan[2:len(temp_dan)-1]
