@@ -36,7 +36,6 @@ def TrevalKarts(karta, conn):
 
 goriz, vertical = TrevalKarts(karta, conn)
 
-print(vertical, goriz)
 
 # Проверка возможности
 def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
@@ -130,14 +129,18 @@ while 1:
     naprawlenie = conn.recv(1)
     shag = random.randint(1, len(karta) - 1)
     print("Новый этап \n")
-    if naprawlenie == b'r':
+    if naprawlenie == b'r' and goriz + 1 < len(karta[0]) and karta[vertical][goriz + 1] != '.':
         winer = proverka_na_cctenu(karta, vertical, goriz, shag2=shag)
-    elif naprawlenie == b'l':
+    elif naprawlenie == b'l' and goriz - 1 >= 0 and karta[vertical][goriz - 1] != '.':
+        input()
         winer = proverka_na_cctenu(karta, vertical, goriz, shag2=-shag)
-    elif naprawlenie == b'd':
+    elif naprawlenie == b'd' and vertical + 1 < len(karta) and karta[vertical + 1][goriz] != '.':
         winer = proverka_na_cctenu(karta, vertical, goriz, shag1=shag)
-    elif naprawlenie == b't':
+    elif naprawlenie == b't' and vertical - 1 > 0 and karta[vertical - 1][goriz] != '.':
         winer = proverka_na_cctenu(karta, vertical, goriz, shag1=-shag)
+    else:
+        conn.send((str(vertical) + ',' + str(goriz)).encode('utf-8'))
+        continue
 
     print('# ', winer)
     if winer == "Win":
@@ -152,6 +155,5 @@ while 1:
         goriz = int(winer[1])
         winer = ''
 
-    print(karta)
 conn.close()
 sock.close()
