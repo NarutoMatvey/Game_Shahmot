@@ -1,3 +1,5 @@
+import random
+
 class Karts:
     raznoobrazie = {
         1: [['.', '.', '.', '|', '|', '|', '.'],
@@ -59,4 +61,12 @@ class Karts:
             }
 
     def Randomaiz(self):
-        pass
+        mass = []
+        while len(mass) != len(self.raznoobrazie):
+            temp = random.randint(1, len(self.raznoobrazie))
+            if temp not in mass:
+                mass +=[temp]
+        for i in range(len(mass)):
+            mass[i] = self.raznoobrazie[mass[i]]
+
+        return mass

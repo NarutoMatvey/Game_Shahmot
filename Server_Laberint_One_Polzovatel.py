@@ -118,7 +118,8 @@ sock.listen(1)  # Создаю очередь пользователей
 
 conn, adr = sock.accept()  # Ожидаю подключения
 
-karta_mass = [karts.Karts.raznoobrazie[2]]
+karta_mass = karts.Karts()
+karta_mass = karta_mass.Randomaiz()
 
 
 
