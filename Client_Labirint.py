@@ -14,6 +14,8 @@ while 1:
     temp_dan = str(conn.recv(5))
     temp_dan = temp_dan[2:len(temp_dan)-1]
     razmer = []
+    print()
+    print(temp_dan)
     for i in temp_dan.split(','):
         razmer += [int(i)]
 

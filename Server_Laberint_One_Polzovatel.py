@@ -4,8 +4,7 @@ import karts  # Библиотека с картами
 import random  # Библиотека псевда рандома
 
 
-
-#Функции
+# Функции
 
 # Блок взаимодействия с картой
 def TrevalKarts(karta, conn):
@@ -21,6 +20,7 @@ def TrevalKarts(karta, conn):
             conn.send(karta[i][j].encode('utf-8'))
     return goriz, vertical
 
+
 # Проверка возможности
 def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
     print('#0', v, g, shag1, shag2)
@@ -28,7 +28,7 @@ def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
     print('#1', light)
     go = 1
     while 1:
-        print('#2', v + shag1, g + shag2 )
+        print('#2', v + shag1, g + shag2)
         if 0 <= v + shag1 < light and 0 <= g + shag2 < light:
             if karta[v + shag1][g + shag2] == '.':
                 if shag1 == 0:
@@ -50,7 +50,7 @@ def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
                 if shag2 < 0 or shag1 < 0:
                     go = -1
                 print('#5', go)
-                for i in range(v, temp1, go): #Неправильные циклы
+                for i in range(v, temp1, go):  # Неправильные циклы
                     print('#', i, karta[i][g])
                     if karta[i][g] == '.':
                         if shag1 < 0:
@@ -108,7 +108,6 @@ def proverka_na_cctenu(karta, v, g, shag1=0, shag2=0):
                 print('#11', shag1)
 
 
-
 # Можно будет выделить в блок
 sock = socket.socket()  # Создание сокета
 
@@ -120,8 +119,6 @@ conn, adr = sock.accept()  # Ожидаю подключения
 
 karta_mass = karts.Karts()
 karta_mass = karta_mass.Randomaiz()
-
-
 
 # Игра началась
 for karta in karta_mass:
@@ -154,7 +151,7 @@ for karta in karta_mass:
         else:
             conn.send(winer)
             winer = str(winer)
-            winer = winer[2:len(winer)-1]
+            winer = winer[2:len(winer) - 1]
             winer = winer.split(',')
             vertical = int(winer[0])
             goriz = int(winer[1])
