@@ -1,117 +1,112 @@
 # -*- coding: utf-8 -*-
 import socket
 
-otvet = []
+answer = []
 conn = socket.socket()
-
 conn.connect(("127.0.0.1", 7000))
-
 player = conn.recv(1)
 
 while 1:
-    Next_End = conn.recv(1)
-    if Next_End == b'E':
+    next_or_end = conn.recv(1)
+    if next_or_end == b'E':
         print('The End!\nYou Win!')
         break
+
     # Размер массива
-
-    temp_dan = str(conn.recv(3))
-    print(temp_dan)
-    temp_dan = temp_dan[2:len(temp_dan)-1]
-    razmer = []
-    print()
-    print(temp_dan)
-    for i in temp_dan.split(','):
-        razmer += [int(i)]
-
+    temp_data = str(conn.recv(3))
+    temp_data = temp_data[2:len(temp_data) - 1]
+    card_sizes = []
+    for i in temp_data.split(','):
+        card_sizes += [int(i)]
 
     # Подгружаю карту
-    Karta_podgruz = []
-    for i in range(razmer[0]):
-        Karta_podgruz += [[]]
-        for j in range(razmer[1]):
-            temp_dan = str(conn.recv(1))
-            temp_dan = temp_dan[2:len(temp_dan) - 1]
-            Karta_podgruz[i] += [temp_dan]
-            if temp_dan == 'I':
-                vert, gor = i, j
+    map_labyrinth = []
+    for i in range(card_sizes[0]):
+        map_labyrinth += [[]]
+        for j in range(card_sizes[1]):
+            temp_data = str(conn.recv(1))
+            temp_data = temp_data[2:len(temp_data) - 1]
+            map_labyrinth[i] += [temp_data]
+            if temp_data == 'I':
+                vertical_point, horizon_point = i, j
 
-    for i in range(razmer[0]):
-        print(Karta_podgruz[i])
-
+    for i in range(card_sizes[0]):
+        print(map_labyrinth[i])
 
     # Игра началась
     while 1:
         if player == b'1':
-            #Первый пользователь
-            Naprav = input("Выбирайте направление: ").strip()
 
-            if 'R' in Naprav or 'r' in Naprav:
+            # Первый пользователь
+            direction = input("Выбирайте направление: ").strip()
+
+            if 'R' in direction or 'r' in direction:
                 conn.send(b'r')
-            elif 'L' in Naprav or 'l' in Naprav:
+            elif 'L' in direction or 'l' in direction:
                 conn.send(b'l')
-            elif 'T' in Naprav or 't' in Naprav:
+            elif 'T' in direction or 't' in direction:
                 conn.send(b't')
-            elif 'D' in Naprav or 'd' in Naprav:
+            elif 'D' in direction or 'd' in direction:
                 conn.send(b'd')
             else:
                 continue
-            temp_peremesh = conn.recv(3)
+            state_of_the_game = conn.recv(3)
         else:
-            #Второй пользователь
-            Naprav = conn.recv(1)
+            # Второй пользователь
+            direction = conn.recv(1)
 
-            if b'r' == Naprav:
+            if b'r' == direction:
                 print('Right')
-            elif b'l' == Naprav:
+            elif b'l' == direction:
                 print('Left')
-            elif b't' == Naprav:
+            elif b't' == direction:
                 print('Top')
-            elif b'd' == Naprav:
+            elif b'd' == direction:
                 print('Down')
 
-            while 1:
-                while 1:
-                    Step = input("Сколько клеток пройти?: ").strip()
+            while True:
+
+                while True:
+                    step = input("Сколько клеток пройти?: ").strip()
                     try:
-                        if Step > '0' and int(Step) < len(Karta_podgruz):
+                        if step > '0' and int(step) < len(map_labyrinth):
                             break
                     except:
                         continue
-                conn.send(Step.encode())
-                temp_peremesh = conn.recv(3)
-                if temp_peremesh == b'Non':
+                conn.send(step.encode())
+                state_of_the_game = conn.recv(3)
+                if state_of_the_game == b'Non':
                     print('Много!!!')
                     continue
                 break
 
-        if temp_peremesh == b'Win':
+        if state_of_the_game == b'Win':
             print('You Win!')
             if player == b'2':
-                otvet += [conn.recv(1)]
-                print(otvet)
+                answer += [conn.recv(1)]
+                print(answer)
             break
-        temp_peremesh = str(temp_peremesh)
-        temp_peremesh = temp_peremesh[2:len(temp_peremesh)-1]
-        temp_peremesh = temp_peremesh.split(',')
+        state_of_the_game = str(state_of_the_game)
+        state_of_the_game = state_of_the_game[2:len(state_of_the_game) - 1]
+        state_of_the_game = state_of_the_game.split(',')
 
-        koo = 1
-        if vert == int(temp_peremesh[0]):
-            if int(temp_peremesh[1]) < gor :
-                koo  = -1
-            while gor != int(temp_peremesh[1]):
-                Karta_podgruz[vert][gor] = '+'
-                gor += koo
+        switch = 1
+        if vertical_point == int(state_of_the_game[0]):
+            if int(state_of_the_game[1]) < horizon_point:
+                switch = -1
+            while horizon_point != int(state_of_the_game[1]):
+                map_labyrinth[vertical_point][horizon_point] = '+'
+                horizon_point += switch
         else:
-            if int(temp_peremesh[0]) < vert :
-                koo  = -1
-            while vert != int(temp_peremesh[0]):
-                Karta_podgruz[vert][gor] = '+'
-                vert += koo
+            if int(state_of_the_game[0]) < vertical_point:
+                switch = -1
+            while vertical_point != int(state_of_the_game[0]):
+                map_labyrinth[vertical_point][horizon_point] = '+'
+                vertical_point += switch
 
-        Karta_podgruz[vert][gor] = 'I'
+        map_labyrinth[vertical_point][horizon_point] = 'I'
 
-        for i in range(len(Karta_podgruz)):
-            print(Karta_podgruz[i])
+        for i in range(len(map_labyrinth)):
+            print(map_labyrinth[i])
 
 conn.close()

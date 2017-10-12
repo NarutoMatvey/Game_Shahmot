@@ -1,7 +1,9 @@
 import random
 
+
 class Karts:
-    raznoobrazie = {
+
+    variety_of_cards = {
         1: [['.', '.', '.', '|', '|', '|', '.'],
             ['|', '|', '|', '|', '.', '|', '.'],
             ['|', '.', '.', '.', '|', '|', '.'],
@@ -48,7 +50,7 @@ class Karts:
             ['.', '.', '.', '|', '.', '|', '.', '.', '.'],
             ['.', '.', '.', '|', '|', '|', '.', '.', '.']],
 
-        6: [['.', '|', '|', '|', '|', '.', '.', '.', '.', '.'],
+        6: {['.', '|', '|', '|', '|', '.', '.', '.', '.', '.'],
             ['.', '|', '.', '.', '|', '.', '|', '|', '|', '.'],
             ['.', '|', '|', '.', '|', '|', '|', '.', '|', '.'],
             ['.', '.', '|', '.', '.', '.', '.', '.', '|', '.'],
@@ -57,16 +59,17 @@ class Karts:
             ['.', '.', '|', '.', '.', '.', '|', '|', '.', '|'],
             ['.', '.', '|', '|', '|', '|', '.', '|', '.', 'y'],
             ['.', '.', '.', '.', '.', '|', '|', '|', '.', '.'],
-            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.']]
+            ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.']}
             }
 
-    def Randomaiz(self):
-        mass = []
-        while len(mass) != len(self.raznoobrazie):
-            temp = random.randint(1, len(self.raznoobrazie))
-            if temp not in mass:
-                mass +=[temp]
-        for i in range(len(mass)):
-            mass[i] = self.raznoobrazie[mass[i]]
+    def random_cards(self):
 
+        mass = []
+        while len(mass) != len(self.variety_of_cards):
+            temp = random.randint(1, len(self.variety_of_cards))
+            if temp not in mass:
+                mass += [temp]
+
+        for i in range(len(mass)):
+            mass[i] = self.variety_of_cards[mass[i]]
         return mass

@@ -1,184 +1,185 @@
 # -*- coding: utf-8 -*-
 import socket  # Подключение библиотеки
-import karts  # Библиотека с картами
-import random  # Библиотека псевда рандома
 
-global otvet
-# Функции
+import karts  # Библиотека с картами
+
+global answer
+
 
 # Блок взаимодействия с картой
-def TrevalKarts(karta, conn, player):
+def loading_map(map_labyrinth_local, connect, player):
     # Отправляет размер карты
-    global otvet
-    conn.send((str(len(karta)) + ',' + str(len(karta[0]))).encode('utf-8'))
+    global answer, horizon_local
+    connect.send((str(len(map_labyrinth_local)) + ',' + str(len(map_labyrinth_local[0]))).encode('utf-8'))
 
     # Отправляет карту
-    for i in range(len(karta)):
-        for j in range(len(karta[i])):
-            if karta[i][j] == 'I':
-                goriz = j
-                vertical = i
-            elif 'a' <= karta[i][j] <= 'z':
-                otvet = karta[i][j]
-                print(otvet)
-                karta[i][j] = 'E'
+    for i in range(len(map_labyrinth_local)):
+        for j in range(len(map_labyrinth_local[i])):
+            if map_labyrinth_local[i][j] == 'I':
+                horizon_local = j
+                vertical_local = i
+            elif 'a' <= map_labyrinth_local[i][j] <= 'z':
+                answer = map_labyrinth_local[i][j]
+                map_labyrinth_local[i][j] = 'E'
+
             if player == 2:
-                if karta[i][j] == 'I':
-                    conn.send(karta[i][j].encode('utf-8'))
+                if map_labyrinth_local[i][j] == 'I':
+                    connect.send(map_labyrinth_local[i][j].encode('utf-8'))
                 else:
-                    conn.send(b'.')
+                    connect.send(b'.')
             else:
-                conn.send(karta[i][j].encode('utf-8'))
-    return goriz, vertical
+                connect.send(map_labyrinth_local[i][j].encode('utf-8'))
+    return horizon_local, vertical_local
 
 
 # Проверка возможности
-def proverka_na_cctenu(karta, v, g, conn2 = None, shag1=0, shag2=0):
+def check_the_wall(map_labyrinth_local, vertical_local, horizon_local, conn2=None, vertical_step=0, horizon_step=0):
 
-    light = len(karta)
-    go = 1
+    light_map_labyrinth = len(map_labyrinth_local)
+    iconic_switch = 1
     while 1:
-        if 0 <= v + shag1 < light and 0 <= g + shag2 < light:
-            if karta[v + shag1][g + shag2] == '.':
-                if shag1 == 0:
-                    if shag2 < 0:
-                        shag2 = -light
+        if 0 <= vertical_local + vertical_step < light_map_labyrinth and 0 <= horizon_local + horizon_step < light_map_labyrinth:
+            if map_labyrinth_local[vertical_local + vertical_step][horizon_local + horizon_step] == '.':
+                if vertical_step == 0:
+                    if horizon_step < 0:
+                        horizon_step = -light_map_labyrinth
                     else:
-                        shag2 = light
+                        horizon_step = light_map_labyrinth
                 else:
-                    if shag1 < 0:
-                        shag1 = -light
+                    if vertical_step < 0:
+                        vertical_step = -light_map_labyrinth
                     else:
-                        shag1 = light
+                        vertical_step = light_map_labyrinth
             else:
-                temp1 = v + shag1
-                temp2 = g + shag2
-                if shag2 < 0 or shag1 < 0:
-                    go = -1
-                for i in range(v, temp1, go):  # Неправильные циклы
-                    if karta[i][g] == '.':
-                        if shag1 < 0:
-                            shag1 = -light
+                temp_vertical = vertical_local + vertical_step
+                temp_horizon = horizon_local + horizon_step
+                if horizon_step < 0 or vertical_step < 0:
+                    iconic_switch = -1
+                for i in range(vertical_local, temp_vertical, iconic_switch):  # Неправильные циклы
+                    if map_labyrinth_local[i][horizon_local] == '.':
+                        if vertical_step < 0:
+                            vertical_step = -light_map_labyrinth
                         else:
-                            shag1 = light
+                            vertical_step = light_map_labyrinth
                         break
 
-                for i in range(g, temp2, go):
-                    if karta[v][i] == '.':
-                        if shag2 < 0:
-                            shag2 = -light
+                for i in range(horizon_local, temp_horizon, iconic_switch):
+                    if map_labyrinth_local[vertical_local][i] == '.':
+                        if horizon_step < 0:
+                            horizon_step = -light_map_labyrinth
                         else:
-                            shag2 = light
+                            horizon_step = light_map_labyrinth
                         break
 
-                if shag1 != light and shag2 != light and shag1 != -light and shag2 != -light:
-                    while v != temp1:
-                        karta[v][g] = '+'
-                        v += go
+                if vertical_step != light_map_labyrinth and horizon_step != light_map_labyrinth \
+                        and vertical_step != -light_map_labyrinth and horizon_step != -light_map_labyrinth:
 
-                    while g != temp2:
-                        karta[v][g] = '+'
-                        g += go
+                    while vertical_local != temp_vertical:
+                        map_labyrinth_local[vertical_local][horizon_local] = '+'
+                        vertical_local += iconic_switch
 
-                    if karta[v][g] == 'E':
-                        karta[v][g] = 'I'
+                    while horizon_local != temp_horizon:
+                        map_labyrinth_local[vertical_local][horizon_local] = '+'
+                        horizon_local += iconic_switch
+
+                    if map_labyrinth_local[vertical_local][horizon_local] == 'E':
+                        map_labyrinth_local[vertical_local][horizon_local] = 'I'
                         return 'Win'
                     else:
-                        karta[v][g] = 'I'
-                        return (str(v) + ',' + str(g)).encode('utf-8')
+                        map_labyrinth_local[vertical_local][horizon_local] = 'I'
+                        return (str(vertical_local) + ',' + str(horizon_local)).encode('utf-8')
 
         else:
             # Если смещение на такое число несуществует
             conn2.send(b'Non')
-            if shag1 == 0:
-                if shag2 < 0:
-                    shag2 = str(conn2.recv(1))
-                    shag2 = shag2[2:len(shag2)-1]
-                    shag2 = int(shag2)
-                    shag2 = -shag2
+            if vertical_step == 0:
+                if horizon_step < 0:
+                    horizon_step = str(conn2.recv(1))
+                    horizon_step = horizon_step[2:len(horizon_step) - 1]
+                    horizon_step = int(horizon_step)
+                    horizon_step = -horizon_step
                 else:
-                    shag2 = str(conn2.recv(1))
-                    shag2 = shag2[2:len(shag2)-1]
-                    shag2 = int(shag2)
-            elif shag1 < 0:
-                shag1 = str(conn2.recv(1))
-                shag1 = shag1[2:len(shag1)-1]
-                shag1 = int(shag1)
-                shag1 = -shag1
+                    horizon_step = str(conn2.recv(1))
+                    horizon_step = horizon_step[2:len(horizon_step) - 1]
+                    horizon_step = int(horizon_step)
+            elif vertical_step < 0:
+                vertical_step = str(conn2.recv(1))
+                vertical_step = vertical_step[2:len(vertical_step) - 1]
+                vertical_step = int(vertical_step)
+                vertical_step = -vertical_step
             else:
-                shag1 = str(conn2.recv(1))
-                shag1 = shag1[2:len(shag1)-1]
-                shag1 = int(shag1)
+                vertical_step = str(conn2.recv(1))
+                vertical_step = vertical_step[2:len(vertical_step) - 1]
+                vertical_step = int(vertical_step)
 
-karta_mass = karts.Karts()
-karta_mass = karta_mass.Randomaiz()
+map_list = karts.Karts()
+map_list = map_list.random_cards()
 
 # Можно будет выделить в блок
 sock = socket.socket()  # Создание сокета
-
 sock.bind(('localhost', 7000))  # Настраиваю определённый порт для общения с клиентом
-
 sock.listen(2)  # Создаю очередь пользователей
-
 conn, adr = sock.accept()  # Ожидаю подключения
+conn2, adr2 = sock.accept()
+
 conn.send(b'1')
 print("Первый игрок!")
 
-conn2, adr2 = sock.accept()
 conn2.send(b'2')
 print("Второй игрок!")
+
 # Игра началась
-for karta in karta_mass:
+for map_labyrinth in map_list:
     conn.send(b'N')
     conn2.send(b'N')
-    goriz, vertical = TrevalKarts(karta, conn, 1)
-    TrevalKarts(karta, conn2, 2)
+    horizon, vertical = loading_map(map_labyrinth, conn, 1)
+    loading_map(map_labyrinth, conn2, 2)
     while 1:
 
-        naprawlenie = conn.recv(1)
+        direction = conn.recv(1)
 
-        if naprawlenie == b'r' and goriz + 1 < len(karta[0]) and karta[vertical][goriz + 1] != '.':
-            conn2.send(naprawlenie)
-            shag = str(conn2.recv(1))
-            shag = shag[2:len(shag) - 1]
-            shag = int(shag)
-            winer = proverka_na_cctenu(karta, vertical, goriz, conn2, shag2=shag)
-        elif naprawlenie == b'l' and goriz - 1 >= 0 and karta[vertical][goriz - 1] != '.':
-            conn2.send(naprawlenie)
-            shag = str(conn2.recv(1))
-            shag = shag[2:len(shag)-1]
-            shag = int(shag)
-            winer = proverka_na_cctenu(karta, vertical, goriz, conn2, shag2=-shag)
-        elif naprawlenie == b'd' and vertical + 1 < len(karta) and karta[vertical + 1][goriz] != '.':
-            conn2.send(naprawlenie)
-            shag = str(conn2.recv(1))
-            shag = shag[2:len(shag) - 1]
-            shag = int(shag)
-            winer = proverka_na_cctenu(karta, vertical, goriz, conn2, shag1=shag)
-        elif naprawlenie == b't' and vertical - 1 >= 0 and karta[vertical - 1][goriz] != '.':
-            conn2.send(naprawlenie)
-            shag = str(conn2.recv(1))
-            shag = shag[2:len(shag) - 1]
-            shag = int(shag)
-            winer = proverka_na_cctenu(karta, vertical, goriz, conn2, shag1=-shag)
+        if direction == b'r' and horizon + 1 < len(map_labyrinth[0]) and map_labyrinth[vertical][horizon + 1] != '.':
+            conn2.send(direction)
+            step = str(conn2.recv(1))
+            step = step[2:len(step) - 1]
+            step = int(step)
+            winner = check_the_wall(map_labyrinth, vertical, horizon, conn2, horizon_step=step)
+        elif direction == b'l' and horizon - 1 >= 0 and map_labyrinth[vertical][horizon - 1] != '.':
+            conn2.send(direction)
+            step = str(conn2.recv(1))
+            step = step[2:len(step) - 1]
+            step = int(step)
+            winner = check_the_wall(map_labyrinth, vertical, horizon, conn2, horizon_step=-step)
+        elif direction == b'd' and vertical + 1 < len(map_labyrinth) and map_labyrinth[vertical + 1][horizon] != '.':
+            conn2.send(direction)
+            step = str(conn2.recv(1))
+            step = step[2:len(step) - 1]
+            step = int(step)
+            winner = check_the_wall(map_labyrinth, vertical, horizon, conn2, vertical_step=step)
+        elif direction == b't' and vertical - 1 >= 0 and map_labyrinth[vertical - 1][horizon] != '.':
+            conn2.send(direction)
+            step = str(conn2.recv(1))
+            step = step[2:len(step) - 1]
+            step = int(step)
+            winner = check_the_wall(map_labyrinth, vertical, horizon, conn2, vertical_step=-step)
         else:
-            conn.send((str(vertical) + ',' + str(goriz)).encode('utf-8'))
+            conn.send((str(vertical) + ',' + str(horizon)).encode('utf-8'))
             continue
 
-        if winer == "Win":
+        if winner == "Win":
             conn.send(b'Win')
             conn2.send(b'Win')
-            conn2.send(otvet.encode())
+            conn2.send(answer.encode())
             break
         else:
-            conn.send(winer)
-            conn2.send(winer)
-            winer = str(winer)
-            winer = winer[2:len(winer) - 1]
-            winer = winer.split(',')
-            vertical = int(winer[0])
-            goriz = int(winer[1])
-            winer = ''
+            conn.send(winner)
+            conn2.send(winner)
+            winner = str(winner)
+            winner = winner[2:len(winner) - 1]
+            winner = winner.split(',')
+            vertical = int(winner[0])
+            horizon = int(winner[1])
+            winner = ''
 
 conn.send(b'E')
 conn2.send(b'E')
